@@ -1,15 +1,15 @@
 (ns hbase-util.table.create
   (:require [clojure.java.io :as io]
             [clojure.string :as s]
+            [hbase-util.vars :as v]
             [hbase-util.util :as u])
+  (:use [hbase-util.vars :only (*conf* *admin*)])
   (:import [java.io File]
            [org.apache.hadoop.conf Configuration]
            [org.apache.hadoop.hbase HBaseConfiguration HTableDescriptor HColumnDescriptor]
            [org.apache.hadoop.hbase.util Bytes RegionSplitter]
-           [org.apache.hadoop.hbase.client HBaseAdmin HTable]))
-
-(def conf (HBaseConfiguration/create))
-(def admin (HBaseAdmin. conf))
+           [org.apache.hadoop.hbase.client HBaseAdmin HTable])
+  (:gen-class))
 
 ;; processing splits
 
@@ -25,7 +25,7 @@
 (defn create-splits
   "Creates splits as 2d byte array from information given"
   [{:keys [nregions algo first-row last-row]}]
-  (let [rs (RegionSplitter/newSplitAlgoInstance conf algo)]
+  (let [rs (RegionSplitter/newSplitAlgoInstance *conf* algo)]
     (doto rs
       (.setFirstRow first-row)
       (.setLastRow last-row))
@@ -68,10 +68,18 @@
 (defn create-table
   [cfg]
   (.createTable
-   admin (table-descriptor cfg) (split-keys cfg)))
+   *admin* (table-descriptor cfg) (split-keys cfg)))
 
 (defn create-tables
   [cfg]
-  (doseq [tbl-cfg cfg]
-    (create-table tbl-cfg))
-  'ok)
+  (doseq [tbl-cfg cfg] (create-table tbl-cfg)))
+
+(defn -main
+  [& [cfg grid-user grid-keytab]]
+  (let [conf (HBaseConfiguration/create)]
+    (binding [*conf* conf
+              *admin* (HBaseAdmin. conf)]
+      (when (u/secure? *conf*)
+        (u/kinit grid-user grid-keytab))
+      (create-tables (u/read-cfg cfg))
+      'done)))

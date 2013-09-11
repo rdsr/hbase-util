@@ -3,44 +3,44 @@
             [clj-yaml.core :as yaml]
             [hbase-util.util :as u]
             [hbase-util.table.create :as c])
+  (:use [hbase-util.vars :only (*conf* *admin*)])
   (:import [java.io File]
            [hbase_util Util]
            [org.apache.hadoop.conf Configuration]
            [org.apache.hadoop.hbase HBaseConfiguration HTableDescriptor HColumnDescriptor]
            [org.apache.hadoop.hbase.util Bytes]
-           [org.apache.hadoop.hbase.client HBaseAdmin HTable]))
-
-(def ^:private conf (HBaseConfiguration/create))
-(def ^:private admin (HBaseAdmin. conf))
+           [org.apache.hadoop.hbase.client HBaseAdmin HTable])
+  (:gen-class))
 
 (defn splits
   [{:keys [id] :as cfg}]
   (let [id (name id)
+        f  (fn [type]
+             (str "/tmp/" id ".splits." (name type)))
         expected (-> cfg c/split-keys u/splits->strs)
-        actual (-> conf (HTable. id) .getStartKeys u/splits->strs rest)]
+        actual   (-> *conf* (HTable. id) .getStartKeys u/splits->strs rest)]
     (if (= expected actual)
-      {:file (u/spit-seq actual (str id ".splits"))}
-      {:file-expected (u/spit-seq expected (str id ".expected.splits"))
-       :file-actual (u/spit-seq actual (str id ".actual.splits"))})))
+      {:file (u/spit-seq actual (f :actual))}
+      {:file-expected (u/spit-seq expected (f :expected))
+       :file-actual (u/spit-seq actual (f :actual))})))
 
-(defn mdiff [m1 m2]
+(defn diff [m1 m2]
   (set/difference
    (-> m1 keys set) (-> m2 keys set)))
 
-(defn mcomm [m1 m2]
+(defn comm [m1 m2]
   (set/intersection
    (-> m1 keys set) (-> m2 keys set)))
 
 (defn values
   [me ma]
   (merge
-   (reduce (fn [m k] (assoc m k [(get me k) :xxx])) {} (mdiff me ma))
-   (reduce (fn [m k] (assoc m [:xxx (get ma k)])) {} (mdiff ma me))
+   (reduce (fn [m k] (assoc m k [(get me k) :xxx])) {} (diff me ma))
+   (reduce (fn [m k] (assoc m [:xxx (get ma k)])) {} (diff ma me))
    (reduce (fn [m k]
              (if (= (get me k) (get ma k))
                m (assoc m k [(get me k) (get ma k)])))
-           {}
-           (mcomm me ma))))
+           {} (comm me ma))))
 
 (defn ibw->str
   [mv]
@@ -52,8 +52,8 @@
 (defn col-family
   [cfe cfa]
   (cond
-   (nil? cfe) {:id (.getNameAsString cfa) :state "expected but missing"}
-   (nil? cfa) {:id (.getNameAsString cfe) :state "unexpected but present"}
+   (nil? cfe) {:id (.getNameAsString cfe) :state "expected, but missing"}
+   (nil? cfa) {:id (.getNameAsString cfa) :state "unexpected but present"}
    :default (merge {:id (.getNameAsString cfa)}
                    (values (-> cfe .getValues ibw->str)
                            (-> cfa .getValues ibw->str)))))
@@ -70,8 +70,8 @@
             cmp (compare ide ida)]
         (cond
          (zero? cmp) (recur erest arest (conj acc [cfe cfa]))
-         (neg? cmp) (recur erest (cons cfa arest) (conj acc [cfe nil]))
-         (pos? cmp) (recur (cons cfa arest) arest (conj acc [nil cfa])))))))
+         (neg? cmp)  (recur erest (cons cfa arest) (conj acc [cfe nil]))
+         (pos? cmp)  (recur (cons cfe erest) arest (conj acc [nil cfa])))))))
 
 (defn col-families
   [tde tda]
@@ -81,8 +81,8 @@
   [{:keys [id] :as cfg}]
   (let [id (name id)
         expected (c/table-descriptor cfg)]
-    (if (.tableExists admin id)
-      (let [actual (.getTableDescriptor admin (.getBytes id))]
+    (if (.tableExists *admin* id)
+      (let [actual (.getTableDescriptor *admin* (.getBytes id))]
         (merge {:id id
                 :splits (splits cfg)
                 :column-families (col-families expected actual)}
@@ -92,7 +92,13 @@
        :state "expected, but missing"})))
 
 (defn tables
-  [cfg]
-  (spit "dumpp"
-        (yaml/generate-string
-         (map table cfg))))
+  [cfg f]
+  (spit f (yaml/generate-string (map table cfg))))
+
+(defn -main
+  [& [cfg out]]
+  (let [conf (HBaseConfiguration/create)]
+    (binding [*conf*  conf
+              *admin* (HBaseAdmin. conf)]
+      (tables (u/read-cfg cfg) out)
+      'done)))
