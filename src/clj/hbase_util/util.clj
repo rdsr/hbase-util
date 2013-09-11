@@ -1,5 +1,6 @@
 (ns hbase-util.util
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :as io]
+            [clj-yaml.core :as yaml])
   (:import [hbase_util Util]
            [java.io PushbackReader]
            [org.apache.hadoop.security UserGroupInformation]
@@ -8,14 +9,7 @@
            [org.apache.hadoop.hbase.client HTable Put]))
 
 (defn read-cfg [f]
-  (try
-    (binding [*read-eval* false]
-      (with-open [r (io/reader f)]
-        (read (PushbackReader. r))))
-    (catch Exception e
-      (throw
-       (IllegalArgumentException.
-        (str f " cannot be parsed: " (.getMessage e)))))))
+  (-> f slurp yaml/parse-string))
 
 (defn secure?
   [conf]

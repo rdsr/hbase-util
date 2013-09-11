@@ -1,4 +1,8 @@
-(ns hbase-util.vars)
+(ns hbase-util.vars
+  (:import [java.io File]
+           [org.apache.hadoop.conf Configuration]
+           [org.apache.hadoop.hbase HBaseConfiguration]
+           [org.apache.hadoop.hbase.client HBaseAdmin]))
 
-(def ^:dynamic *conf*)
-(def ^:dynamic *admin*)
+(def conf (HBaseConfiguration/create))
+(def admin (HBaseAdmin. conf))

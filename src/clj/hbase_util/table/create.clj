@@ -3,29 +3,28 @@
             [clojure.string :as s]
             [hbase-util.vars :as v]
             [hbase-util.util :as u])
-  (:use [hbase-util.vars :only (*conf* *admin*)])
+  (:use [hbase-util.vars :only (conf admin)])
   (:import [java.io File]
            [org.apache.hadoop.conf Configuration]
            [org.apache.hadoop.hbase HBaseConfiguration HTableDescriptor HColumnDescriptor]
            [org.apache.hadoop.hbase.util Bytes RegionSplitter]
-           [org.apache.hadoop.hbase.client HBaseAdmin HTable])
-  (:gen-class))
+           [org.apache.hadoop.hbase.client HBaseAdmin HTable]))
 
 ;; processing splits
 
-(defn strs->bytes
+(defn- strs->bytes
   "Converts a collection of 'string' split keys to a 2d byte array"
   [split-keys]
   (into-array (map u/to-bytes split-keys)))
 
-(defn read-splits
+(defn- read-splits
   "Reads splits from file as strings"
   [f] (line-seq (io/reader f)))
 
-(defn create-splits
+(defn- create-splits
   "Creates splits as 2d byte array from information given"
   [{:keys [nregions algo first-row last-row]}]
-  (let [rs (RegionSplitter/newSplitAlgoInstance *conf* algo)]
+  (let [rs (RegionSplitter/newSplitAlgoInstance conf algo)]
     (doto rs
       (.setFirstRow first-row)
       (.setLastRow last-row))
@@ -45,18 +44,18 @@
   :info [{:keys [splits]}] (create-splits (:info splits)))
 
 
-(defn column-descriptor
+(defn- column-descriptor
   [{:keys [id] :as cfg}]
   (let [hcd (HColumnDescriptor. (name id))]
     (doseq [[k v] (dissoc cfg :id)]
       (.setValue hcd (-> k name s/upper-case) (str v)))
     hcd))
 
-(defn column-descritors
+(defn- column-descritors
   [{:keys [column-families]}]
   (map column-descriptor column-families))
 
-(defn table-descriptor
+(defn- table-descriptor
   [{:keys [id] :as cfg}]
   (let [htd (HTableDescriptor. (name id))]
     (doseq [[k v] (dissoc cfg :column-families :splits :id)]
@@ -65,21 +64,16 @@
       (.addFamily htd cf))
     htd))
 
-(defn create-table
+(defn- create-table
   [cfg]
-  (.createTable
-   *admin* (table-descriptor cfg) (split-keys cfg)))
+  (.createTable admin
+                (table-descriptor cfg)
+                (split-keys cfg)))
 
-(defn create-tables
+(defn- create-tables
   [cfg]
-  (doseq [tbl-cfg cfg] (create-table tbl-cfg)))
+  (doseq [tbl-cfg cfg]
+    (create-table tbl-cfg)))
 
-(defn -main
-  [& [cfg grid-user grid-keytab]]
-  (let [conf (HBaseConfiguration/create)]
-    (binding [*conf* conf
-              *admin* (HBaseAdmin. conf)]
-      (when (u/secure? *conf*)
-        (u/kinit grid-user grid-keytab))
-      (create-tables (u/read-cfg cfg))
-      'done)))
+(defn create
+  [f] (create-tables (u/read-cfg f)) 'done)

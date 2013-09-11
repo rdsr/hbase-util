@@ -3,14 +3,13 @@
             [clj-yaml.core :as yaml]
             [hbase-util.util :as u]
             [hbase-util.table.create :as c])
-  (:use [hbase-util.vars :only (*conf* *admin*)])
+  (:use [hbase-util.vars :only (conf admin)])
   (:import [java.io File]
            [hbase_util Util]
            [org.apache.hadoop.conf Configuration]
            [org.apache.hadoop.hbase HBaseConfiguration HTableDescriptor HColumnDescriptor]
            [org.apache.hadoop.hbase.util Bytes]
-           [org.apache.hadoop.hbase.client HBaseAdmin HTable])
-  (:gen-class))
+           [org.apache.hadoop.hbase.client HBaseAdmin HTable]))
 
 (defn splits
   [{:keys [id] :as cfg}]
@@ -18,7 +17,7 @@
         f  (fn [type]
              (str "/tmp/" id ".splits." (name type)))
         expected (-> cfg c/split-keys u/splits->strs)
-        actual   (-> *conf* (HTable. id) .getStartKeys u/splits->strs rest)]
+        actual   (-> conf (HTable. id) .getStartKeys u/splits->strs rest)]
     (if (= expected actual)
       {:file (u/spit-seq actual (f :actual))}
       {:file-expected (u/spit-seq expected (f :expected))
@@ -81,8 +80,8 @@
   [{:keys [id] :as cfg}]
   (let [id (name id)
         expected (c/table-descriptor cfg)]
-    (if (.tableExists *admin* id)
-      (let [actual (.getTableDescriptor *admin* (.getBytes id))]
+    (if (.tableExists admin id)
+      (let [actual (.getTableDescriptor admin (.getBytes id))]
         (merge {:id id
                 :splits (splits cfg)
                 :column-families (col-families expected actual)}
@@ -95,10 +94,5 @@
   [cfg f]
   (spit f (yaml/generate-string (map table cfg))))
 
-(defn -main
-  [& [cfg out]]
-  (let [conf (HBaseConfiguration/create)]
-    (binding [*conf*  conf
-              *admin* (HBaseAdmin. conf)]
-      (tables (u/read-cfg cfg) out)
-      'done)))
+(defn verify
+  [cfg out] (tables (u/read-cfg cfg) out) 'done)
