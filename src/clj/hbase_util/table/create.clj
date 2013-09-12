@@ -13,7 +13,7 @@
 ;; processing splits
 
 (defn- strs->bytes
-  "Converts a collection of 'string' split keys to a 2d byte array"
+  "Converts a collection of 'string' keys (splits) to a 2d byte array"
   [split-keys]
   (into-array (map u/to-bytes split-keys)))
 

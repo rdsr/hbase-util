@@ -58,6 +58,7 @@
                            (-> cfa .getValues ibw->str)))))
 
 (defn col-family-pairs
+  ""
   [tde tda]
   (loop [[cfe & erest] (-> tde .getFamilies seq)
          [cfa & arest] (-> tda .getFamilies seq)
@@ -76,7 +77,10 @@
   [tde tda]
   (map #(apply col-family %) (col-family-pairs tde tda)))
 
-(defn table
+(defn- table
+  "Constructs an 'expected' table descriptor from cfg given
+and compares with the 'actual' table descriptor. Returns a
+map specifying the differences"
   [{:keys [id] :as cfg}]
   (let [id (name id)
         expected (c/table-descriptor cfg)]
@@ -90,9 +94,11 @@
       {:id id
        :state "expected, but missing"})))
 
-(defn tables
+(defn- tables
   [cfg f]
   (spit f (yaml/generate-string (map table cfg))))
 
 (defn verify
-  [cfg out] (tables (u/read-cfg cfg) out) 'done)
+  "Reads tables configuration from 'in' file as yaml
+ and dump any difference found in 'out' in yaml format"
+  [in out] (tables (u/read-cfg in) out) 'done)
