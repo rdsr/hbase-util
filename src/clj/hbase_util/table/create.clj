@@ -5,6 +5,7 @@
             [hbase-util.util :as u])
   (:use [hbase-util.vars :only (conf admin)])
   (:import [java.io File]
+           [hbase_util Util]
            [org.apache.hadoop.conf Configuration]
            [org.apache.hadoop.hbase HBaseConfiguration HTableDescriptor HColumnDescriptor]
            [org.apache.hadoop.hbase.util Bytes RegionSplitter]
@@ -13,9 +14,13 @@
 ;; processing splits
 
 (defn- strs->bytes
-  "Converts a collection of 'string' keys (splits) to a 2d byte array"
+  "Converts a collection of 'string' keys (splits) to
+a 2d byte array using a fn 'to-bytes' to convert the
+each split to a byte-array"
   [split-keys]
-  (into-array (map u/to-bytes split-keys)))
+  (into-array (map #(Util/toBytesBinary %) split-keys)))
+
+;;(def hex-strs->bytes (partial strs->bytes #(Util/toBytesBinary %)))
 
 (defn- read-splits
   "Reads splits from file as strings"
@@ -43,7 +48,6 @@
 (defmethod split-keys
   :info [{:keys [splits]}] (create-splits (:info splits)))
 
-
 (defn- column-descriptor
   [{:keys [id] :as cfg}]
   (let [hcd (HColumnDescriptor. (name id))]
@@ -55,7 +59,7 @@
   [{:keys [column-families]}]
   (map column-descriptor column-families))
 
-(defn- table-descriptor
+(defn table-descriptor
   [{:keys [id] :as cfg}]
   (let [htd (HTableDescriptor. (name id))]
     (doseq [[k v] (dissoc cfg :column-families :splits :id)]

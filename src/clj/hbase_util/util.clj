@@ -1,6 +1,7 @@
 (ns hbase-util.util
   (:require [clojure.java.io :as io]
-            [clj-yaml.core :as yaml])
+            [clj-yaml.core :as yaml]
+            [clojure.stacktrace :as e])
   (:import [hbase_util Util]
            [java.io PushbackReader]
            [org.apache.hadoop.security UserGroupInformation]
@@ -30,3 +31,9 @@
 
 (defn splits->strs
   [splits] (map #(Util/toStringBinary %) splits))
+
+(defn print-root-cause
+  []
+  (-> *e
+      e/root-cause
+      e/print-stack-trace))

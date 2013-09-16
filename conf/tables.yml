@@ -1,0 +1,12 @@
+- id: ca_object_table
+  column-families:
+  - {id: d, versions: 10}
+  - {id: m, versions: 10}
+  splits:
+    file: resources/object-splits-336.txt
+
+- id: ca_chlog_table
+  column-families:
+  - {id: m, ttl: 259200}
+  splits:
+    file: resources/changelog-splits-90.txt

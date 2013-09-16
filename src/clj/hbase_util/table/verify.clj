@@ -51,8 +51,8 @@
 (defn col-family
   [cfe cfa]
   (cond
-   (nil? cfe) {:id (.getNameAsString cfe) :state "expected, but missing"}
-   (nil? cfa) {:id (.getNameAsString cfa) :state "unexpected but present"}
+   (nil? cfe) {:id (.getNameAsString cfe) :status "expected, but missing"}
+   (nil? cfa) {:id (.getNameAsString cfa) :status "unexpected but present"}
    :default (merge {:id (.getNameAsString cfa)}
                    (values (-> cfe .getValues ibw->str)
                            (-> cfa .getValues ibw->str)))))
@@ -92,7 +92,7 @@ map specifying the differences"
                (values (-> expected .getValues ibw->str)
                        (-> expected .getValues ibw->str))))
       {:id id
-       :state "expected, but missing"})))
+       :status "expected, but missing"})))
 
 (defn- tables
   [cfg f]
