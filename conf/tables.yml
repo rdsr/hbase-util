@@ -3,7 +3,7 @@
   - {id: d, versions: 10}
   - {id: m, versions: 10}
   splits:
-    file: resources/object-splits-336.txt
+    file: resources/prod_content_splits_1008.txt
 
 - id: ca_chlog_table
   column-families:
