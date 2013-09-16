@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+function install() {
+    curl -v https://raw.github.com/technomancy/leiningen/stable/bin/lein -o bin/lein
+    chmod u+x bin/lein
+}
+
+export PATH=$PATH:`pwd`/bin
+mkdir -p logs
+
+hash lein 2>/dev/null
+if [ $? -eq 1]; then
+    install
+fi
+
+lein repl
