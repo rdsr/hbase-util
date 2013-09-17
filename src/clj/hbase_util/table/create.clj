@@ -15,8 +15,7 @@
 
 (defn- strs->bytes
   "Converts a collection of 'string' keys (splits) to
-a 2d byte array using a fn 'to-bytes' to convert the
-each split to a byte-array"
+a 2d byte array"
   [split-keys]
   (into-array (map #(Util/toBytesBinary %) split-keys)))
 
@@ -40,15 +39,19 @@ each split to a byte-array"
     (some #{:vals :file :info} (keys splits))))
 
 (defmethod split-keys
+  "Creates splits as 2d byte array from a vector of 'string' splits"
   :vals [{:keys [splits]}] (strs->bytes (:vals splits)))
 
 (defmethod split-keys
+  "Creates splits as 2d byte array from a file containing 'string' splits"
   :file [{:keys [splits]}] (strs->bytes (read-splits (:file splits))))
 
 (defmethod split-keys
+  "Creates splits as 2d byte array from provided information"
   :info [{:keys [splits]}] (create-splits (:info splits)))
 
 (defn- column-descriptor
+  "Creates a HColumnDescriptor from a 'cfg' map"
   [{:keys [id] :as cfg}]
   (let [hcd (HColumnDescriptor. (name id))]
     (doseq [[k v] (dissoc cfg :id)]
@@ -60,6 +63,7 @@ each split to a byte-array"
   (map column-descriptor column-families))
 
 (defn table-descriptor
+  "Creates a HTableDescriptor from a 'cfg' map"
   [{:keys [id] :as cfg}]
   (let [htd (HTableDescriptor. (name id))]
     (doseq [[k v] (dissoc cfg :column-families :splits :id)]
@@ -80,4 +84,6 @@ each split to a byte-array"
     (create-table tbl-cfg)))
 
 (defn create
+  "Reads tables configuration from file 'f' and
+creates the corresponding tables"
   [f] (create-tables (u/read-cfg f)) 'done)

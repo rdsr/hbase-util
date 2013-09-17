@@ -12,6 +12,11 @@
            [org.apache.hadoop.hbase.client HBaseAdmin HTable]))
 
 (defn splits
+  "For a specific table, it computes the splits from 'cfg' and
+also reads the actual splits from hbase table. A comparison
+map is returned containing a single file, if the splits are the
+same, else the map contains two files containing the expected
+and actual splits"
   [{:keys [id] :as cfg}]
   (let [id (name id)
         f  (fn [type]
@@ -23,15 +28,23 @@
       {:file-expected (u/spit-seq expected (f :expected))
        :file-actual (u/spit-seq actual (f :actual))})))
 
-(defn diff [m1 m2]
+(defn diff
+  "Returns the set difference of the keys from maps m1 and m2"
+  [m1 m2]
   (set/difference
    (-> m1 keys set) (-> m2 keys set)))
 
+
 (defn comm [m1 m2]
+  "Returns the set intersection of the keys from maps m1 and m2"
   (set/intersection
    (-> m1 keys set) (-> m2 keys set)))
 
 (defn values
+  "Computes a difference map. If key is present in both
+the input maps, the computed entry in the resulting difference
+map will be [key [expected-value actual-value]]. If a key
+is missing in either of the map a 'xxx' is added in it'splace"
   [me ma]
   (merge
    (reduce (fn [m k] (assoc m k [(get me k) :xxx])) {} (diff me ma))
@@ -42,6 +55,8 @@
            {} (comm me ma))))
 
 (defn ibw->str
+  "Transforms the input map '{ImmutableBytesWritable -> ImmutableBytesWritable}'
+using str representation for keys and values"
   [mv]
   (reduce
    (fn [m [k v]]
@@ -49,6 +64,8 @@
    {} mv))
 
 (defn col-family
+    "Compares the 'expected' and the 'actual' col-family pair.
+Returns a map specifying the differences"
   [cfe cfa]
   (cond
    (nil? cfe) {:id (.getNameAsString cfe) :status "expected, but missing"}
@@ -58,7 +75,13 @@
                            (-> cfa .getValues ibw->str)))))
 
 (defn col-family-pairs
-  ""
+  "Returns a seq of col-family pairs, each pair containing
+the 'expected' and the 'actual' col-family. If a column
+family is missing in either the expected table-descriptor
+or the actual table-descriptor a nil is added in it's place.
+Note: tde.getFamilies returns sorted col-family descriptors,
+Also, the assumption is that there has to be atleast one
+column-family descriptor in both table-descriptors"
   [tde tda]
   (loop [[cfe & erest] (-> tde .getFamilies seq)
          [cfa & arest] (-> tda .getFamilies seq)
@@ -99,6 +122,6 @@ map specifying the differences"
   (spit f (yaml/generate-string (map table cfg))))
 
 (defn verify
-  "Reads tables configuration from 'in' file as yaml
- and dump any difference found in 'out' in yaml format"
+  "Reads tables configuration from 'in' file, as yaml,
+ and dumps any difference found in 'out' file, in yaml format"
   [in out] (tables (u/read-cfg in) out) 'done)
