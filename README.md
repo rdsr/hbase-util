@@ -31,7 +31,7 @@ file: path/to/file
 ```
 
 * ```
-info: {negions: 16, algo: "HexStringSplit" first-row: "0" last-row "F"}
+info: {negions: 16, algo: "HexStringSplit", first-row: "0", last-row "F"}
 ```
 
 * ```
