@@ -37,7 +37,7 @@ splits:
 * ```
 splits:
   vals : ["0", "1", "2", "3"]
-````
+```
 
 #### Split file
 Table creation and validation routines assume that the non-printable characters in the split
