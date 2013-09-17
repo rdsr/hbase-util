@@ -35,8 +35,9 @@ and actual splits"
    (-> m1 keys set) (-> m2 keys set)))
 
 
-(defn comm [m1 m2]
+(defn comm
   "Returns the set intersection of the keys from maps m1 and m2"
+  [m1 m2]
   (set/intersection
    (-> m1 keys set) (-> m2 keys set)))
 
@@ -64,7 +65,7 @@ using str representation for keys and values"
    {} mv))
 
 (defn col-family
-    "Compares the 'expected' and the 'actual' col-family pair.
+  "Compares the 'expected' and the 'actual' col-family pair.
 Returns a map specifying the differences"
   [cfe cfa]
   (cond
