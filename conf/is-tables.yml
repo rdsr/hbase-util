@@ -1,11 +1,11 @@
-- id: ca_object_table4
+- id: ca_object_table
   column-families:
   - {id: d, compression: LZO, bloomfilter: ROW, versions: 10}
   - {id: m, compression: LZO, bloomfilter: ROW, versions: 10}
   splits:
     file: resources/prod_content_splits_1008.txt
 
-- id: ca_chlog_table4
+- id: ca_chlog_table
   column-families:
   - {id: m, compression: LZO, ttl: 259200}
   splits:

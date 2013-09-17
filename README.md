@@ -12,7 +12,7 @@
 => (create "conf/tables.yml")
 ```
 
-Tables configuration is specified in yaml format [see tables.yml](./conf/tables.yml).
+Tables configuration is specified in yaml format [see is-tables.yml](./conf/is-tables.yml).
 This same yaml file serves both for creation and for later verification purposes.
 Say, for instance, the tables were created by someone else, it can be verified whether
 the tables were correctly created by running the below command
