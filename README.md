@@ -28,15 +28,17 @@ tables are stored, in yaml format.
 Splits for a table can be specified (in the input yaml conf file) either as
 * ```
 splits:
-  file : path/to/file
+  file: path/to/file
 ```
+
 * ```
 splits:
-  info : {negions: 16, algo: "HexStringSplit" first-row: "0" last-row "F"}
+  info: {negions: 16, algo: "HexStringSplit" first-row: "0" last-row "F"}
 ```
+
 * ```
 splits:
-  vals : ["0", "1", "2", "3"]
+  vals: ["0", "1", "2", "3"]
 ```
 
 #### Split file
