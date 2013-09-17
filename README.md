@@ -7,7 +7,7 @@
 * run bin/hbase-util
 
 ## Current set of utilities
-### Create (and verifying) hbase tables
+### Create (and verify) hbase tables
 ```clojure
 => (create "conf/tables.yml")
 ```
