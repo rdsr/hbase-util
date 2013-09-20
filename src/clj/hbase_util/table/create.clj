@@ -123,4 +123,4 @@ creates the corresponding tables"
 
 (defn create-noadmin
   [f]
-  (create-tables-noadmin (u/read-cfg f)))
+  (create-tables-noadmin (u/read-cfg f)) 'done)
