@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 echo "Starting shell"
-java -Dfile.encoding=UTF-8 -cp "conf:lib/*" reply.ReplyMain --eval "(se 'hbase-util.core) (in-ns 'base-util.core)"
+java -Dfile.encoding=UTF-8 -cp "conf:lib/*" reply.ReplyMain --eval "(use 'hbase-util.core) (in-ns 'hbase-util.core)"

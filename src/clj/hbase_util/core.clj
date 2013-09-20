@@ -1,5 +1,7 @@
-(ns hbase-util.core)
+(ns hbase-util.core
+  (:require [hbase-util.table.create :as c]
+            [hbase-util.table.verify :as v]))
 
-(use '[hbase-util.table.create :only (create create-noadmin)]
-     '[hbase-util.table.verify :only (verify)]
-     '[hbase-util.util :only (print-root-cause)])
+(def create c/create)
+(def create-noadmin c/create-noadmin)
+(def verify v/verify)
