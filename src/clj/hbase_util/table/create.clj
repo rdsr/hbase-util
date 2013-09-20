@@ -39,16 +39,16 @@ a 2d byte array"
     (some #{:vals :file :info} (keys splits))))
 
 (defmethod split-keys
-  "Creates splits as 2d byte array from a vector of 'string' splits"
-  :vals [{:keys [splits]}] (strs->bytes (:vals splits)))
+  :vals
+  [{:keys [splits]}] (strs->bytes (:vals splits)))
 
 (defmethod split-keys
-  "Creates splits as 2d byte array from a file containing 'string' splits"
-  :file [{:keys [splits]}] (strs->bytes (read-splits (:file splits))))
+  :file
+  [{:keys [splits]}] (strs->bytes (read-splits (:file splits))))
 
 (defmethod split-keys
-  "Creates splits as 2d byte array from provided information"
-  :info [{:keys [splits]}] (create-splits (:info splits)))
+  :info
+  [{:keys [splits]}] (create-splits (:info splits)))
 
 (defn- column-descriptor
   "Creates a HColumnDescriptor from a 'cfg' map"
@@ -58,7 +58,7 @@ a 2d byte array"
       (.setValue hcd (-> k name s/upper-case) (str v)))
     hcd))
 
-(defn- column-descritors
+(defn- column-descriptors
   [{:keys [column-families]}]
   (map column-descriptor column-families))
 
@@ -68,7 +68,7 @@ a 2d byte array"
   (let [htd (HTableDescriptor. (name id))]
     (doseq [[k v] (dissoc cfg :column-families :splits :id)]
       (.setValue htd (-> k name s/upper-case) (str v)))
-    (doseq [cf (column-descritors cfg)]
+    (doseq [cf (column-descriptors cfg)]
       (.addFamily htd cf))
     htd))
 
@@ -87,3 +87,40 @@ a 2d byte array"
   "Reads tables configuration from file 'f' and
 creates the corresponding tables"
   [f] (create-tables (u/read-cfg f)) 'done)
+
+(defn- create-cf-noadmin
+  [tid cd]
+  (let [tid (name tid)
+        td (.getTableDescriptor admin (.getBytes tid))
+        id (.getNameAsString cd)]
+    (when (.hasFamily td (.getBytes id))
+      (println "deleting column family" id "in table" tid)
+      (.deleteColumn admin tid id))
+    (println "creating column family" id "in table" tid)
+    (.addColumn admin tid cd)))
+
+(defn- create-cfs-noadmin
+  [{:keys [id] :as cfg}]
+  (doseq [cf (column-descriptors cfg)]
+    (create-cf-noadmin id cf)))
+
+(defn- create-table-noadmin
+  [{:keys [id] :as cfg}]
+  (let [id (name id)]
+    (when-not (.tableExists admin id)
+      (println "Table" id "doesn't exist"))
+    (when (.isTableEnabled admin id)
+      (println "disabling table " id)
+      (.disableTable admin id))
+    (create-cfs-noadmin cfg)
+    (println "enabling table " id)
+    (.enableTable admin id)))
+
+(defn- create-tables-noadmin
+  [cfg]
+  (doseq [tbl-cfg cfg]
+    (create-table-noadmin tbl-cfg)))
+
+(defn create-noadmin
+  [f]
+  (create-tables-noadmin (u/read-cfg f)))

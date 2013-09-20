@@ -1,17 +1,4 @@
 #!/usr/bin/env bash
 
-function install () {
-    curl -v https://raw.github.com/technomancy/leiningen/stable/bin/lein -o bin/lein
-    chmod u+x bin/lein
-}
-
-export PATH=$PATH:`pwd`/bin
-mkdir -p logs
-
-hash lein 2>/dev/null
-if [[ $? != 0 ]]; then
-    install
-fi
-
 echo "Starting shell"
-lein repl
+java -Dfile.encoding=UTF-8 -cp "conf:lib/*" reply.ReplyMain --eval "(se 'hbase-util.core) (in-ns 'base-util.core)"

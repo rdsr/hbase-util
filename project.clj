@@ -8,6 +8,7 @@
                  :init-ns hbase-util.core}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [clj-yaml "0.4.0"]
+                 [reply "0.2.1"]
                  [org.apache.hbase/hbase "0.94.10"]
                  [org.apache.hadoop/hadoop-core "1.1.2"]
                  [org.apache.zookeeper/zookeeper "3.4.5"]])
