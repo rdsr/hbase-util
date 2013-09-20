@@ -50,6 +50,9 @@ a 2d byte array"
   :info
   [{:keys [splits]}] (create-splits (:info splits)))
 
+(defmethod split-keys
+  :default [_] nil)
+
 (defn- column-descriptor
   "Creates a HColumnDescriptor from a 'cfg' map"
   [{:keys [id] :as cfg}]
