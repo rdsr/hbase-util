@@ -9,7 +9,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [clj-yaml "0.4.0"]
                  [reply "0.2.1"]
-                 [org.apache.hbase/hbase "0.94.10"]
-                 [org.apache.hadoop/hadoop-core "1.1.2"]
+                 [org.apache.hbase/hbase "0.94.5.6.1302190003"]
+                 [org.apache.hadoop/hadoop-common "0.23.6.2.1302191452"]
                  [org.apache.zookeeper/zookeeper "3.4.5"]])
   ;:repositories {"yahoo" "http://ymaven.corp.yahoo.com:9999/proximity/repository/public"})
