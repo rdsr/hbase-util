@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
-mkdir -p log
+mkdir -p logs
+export HBASE_CLASSPATH=`hbase classpath`
 echo "Starting shell"
-java -Dfile.encoding=UTF-8 -cp "conf:lib/*" reply.ReplyMain --eval "(use 'hbase-util.core) (in-ns 'hbase-util.core)"
+${JAVA_HOME}/bin/java -Djava.security.auth.login.config=conf/jaas-hbase-client.conf -Dfile.encoding=UTF-8 -cp "conf:lib/*:$HBASE_CLASSPATH" reply.ReplyMain --eval "(use 'hbase-util.core)"

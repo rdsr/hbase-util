@@ -7,6 +7,7 @@
 
 (def conf (HBaseConfiguration/create))
 (when (u/secure? conf)
-  (u/kinit (System/getenv "grid_user") (System/getenv "grid_keytab")))
+  (println "skipping kinit"))
+;(u/kinit (System/getenv "grid_user") (System/getenv "grid_keytab")))
 
 (def admin (HBaseAdmin. conf))

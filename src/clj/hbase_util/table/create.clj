@@ -110,14 +110,15 @@ creates the corresponding tables"
 (defn- create-table-noadmin
   [{:keys [id] :as cfg}]
   (let [id (name id)]
-    (when-not (.tableExists admin id)
-      (println "Table" id "doesn't exist"))
-    (when (.isTableEnabled admin id)
-      (println "disabling table " id)
-      (.disableTable admin id))
-    (create-cfs-noadmin cfg)
-    (println "enabling table " id)
-    (.enableTable admin id)))
+    (if (.tableExists admin id)
+      (do
+        (when (.isTableEnabled admin id)
+          (println "disabling table " id)
+          (.disableTable admin id))
+        (create-cfs-noadmin cfg)
+        (println "enabling table " id)
+        (.enableTable admin id))
+      (println "table" id "doesn't exist"))))
 
 (defn- create-tables-noadmin
   [cfg]

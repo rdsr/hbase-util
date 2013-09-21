@@ -12,4 +12,3 @@
                  [org.apache.hbase/hbase "0.94.5.6.1302190003"]
                  [org.apache.hadoop/hadoop-common "0.23.6.2.1302191452"]
                  [org.apache.zookeeper/zookeeper "3.4.5"]])
-  ;:repositories {"yahoo" "http://ymaven.corp.yahoo.com:9999/proximity/repository/public"})
