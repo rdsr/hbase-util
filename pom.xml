@@ -20,6 +20,9 @@
     <resource>
       <directory>conf</directory>
     </resource>
+    <resource>
+      <directory>src/clj</directory>
+    </resource>
   </resources>
   <testResources>
     <testResource>
