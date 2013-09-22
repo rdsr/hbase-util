@@ -25,12 +25,12 @@
   (.getTableDescriptor admin (u/to-bytes id)))
 
 (defn col-name
-  [^HColumnDescriptor col-desc] (.getNamesAsString col-desc))
+  [^HColumnDescriptor col-desc] (.getNameAsString col-desc))
 
 (defn has-family?
   [^String tid ^String cid]
-  (let [tbl-desc (-> tid u/to-bytes table-descriptor)]
-    (.hasFamily tbl-desc cid)))
+  (let [tbl-desc (table-descriptor tid)]
+    (.hasFamily tbl-desc (u/to-bytes cid))))
 
 (defn delete-column
   [tid cid]
@@ -38,9 +38,9 @@
   (.deleteColumn admin tid cid))
 
 (defn add-column
-  [tid cid]
-  (warn "Creating column family" cid "in table" tid)
-  (.addColumn admin tid cid))
+  [tid ^HColumnDescriptor col-desc]
+  (warn "Creating column family" (col-name col-desc) "in table" tid)
+  (.addColumn admin tid col-desc))
 
 (defn- ibw->str
   "Transforms the input map '{ImmutableBytesWritable -> ImmutableBytesWritable}'
@@ -56,7 +56,7 @@ using str representation for keys and values"
 The keys and vals are converted to string."
   [col-desc] (-> col-desc .getValues ibw->str))
 
-(defn col-values
+(defn column-values
   "Returns the values map in a col-family.
 The keys and vals are converted to string."
   [table-desc] (-> table-desc .getValues ibw->str))

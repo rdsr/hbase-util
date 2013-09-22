@@ -24,75 +24,63 @@ and actual splits"
         expected (-> cfg c/split-keys u/splits->strs)
         actual (t/split-keys id)]
     (if (= expected actual)
-      {:file (u/spit-seq actual (f :actual))}
+      {:file (u/spit-seq actual (f :no-change))}
       {:file-expected (u/spit-seq expected (f :expected))
        :file-actual (u/spit-seq actual (f :actual))})))
 
-(defn diff
-  "Returns the set difference of the keys from maps m1 and m2"
+(defn remove-same
+  "Removes entries where v1 and v2 are same"
+  [m]
+  (reduce (fn [m [k [v1 v2]]]
+            (if (= v1 v2) m
+                (assoc m k [v1 v2])))
+          {} m))
+
+(defn diff-map
+  "Merges maps m1 and m2, entries in the result being
+ either [(get m1 k) nil] or [nil (get m2 k)] or
+ [(get m1 k) (get m2 k)]. If the values for a given key
+ are same they are not included in the result"
   [m1 m2]
-  (set/difference
-   (-> m1 keys set) (-> m2 keys set)))
-
-(defn comm
-  "Returns the set intersection of the keys from maps m1 and m2"
-  [m1 m2]
-  (set/intersection
-   (-> m1 keys set) (-> m2 keys set)))
-
-(defn values
-  "Computes a difference map. If key is present in both
-the input maps, the computed entry in the resulting difference
-map will be [key [expected-value actual-value]]. If a key
-is missing in either of the map a '' is added in it's place"
-  [me ma] ;; expected and actual maps
-  (merge
-   (reduce (fn [m k] (assoc m k [(get me k) nil])) {} (diff me ma))
-   (reduce (fn [m k] (assoc m [nil (get ma k)])) {} (diff ma me))
-   (reduce (fn [m k]
-             (if (= (get me k) (get ma k))
-               m (assoc m k [(get me k) (get ma k)])))
-           {} (comm me ma))))
+  (remove-same
+   (merge-with
+    (fn [[v1 _] [_ v2]] [v1 v2])
+    (into {} (map (fn [[k v]] [k [v nil]]) m1))
+    (into {} (map (fn [[k v]] [k [nil v]]) m2)))))
 
 
-(defn col-family
+(defn column-diff
   "Compares the 'expected' and the 'actual' col-family pair.
 Returns a map specifying the differences"
   [cfe cfa]
   (cond
-   (nil? cfe) {:id (t/col-name cfe) :status "expected, but missing"}
-   (nil? cfa) {:id (t/col-name cfa) :status "unexpected but present"}
-   :default (merge {:id (t/col-name cfa)}
-                   (values (t/descriptor-values cfe)
-                           (t/descriptor-values cfa)))))
+   (nil? cfe) {:id (t/col-name cfa) :status :expected}
+   (nil? cfa) {:id (t/col-name cfe) :status :unexpected}
+   :default (assoc (diff-map (t/column-values cfe)
+                           (t/column-values cfa))
+              :id (t/col-name cfa))))
 
-(defn col-family-pairs
-  "Returns a seq of col-family pairs, each pair containing
-the 'expected' and the 'actual' col-family. If a column
-family is missing in either the expected table-descriptor
-or the actual table-descriptor a nil is added in it's place.
-Note: tde.getFamilies returns sorted col-family descriptors,
-Also, the assumption is that there has to be atleast one
-column-family descriptor in both table-descriptors"
+(defn column-map
+  "Converts a coll of column descriptors to a map keyed on column names"
+  [col-descs]
+  (reduce (fn [m col-desc]
+            (assoc m (t/col-name col-desc) col-desc))
+          {} col-descs))
+
+(defn column-pairs
+  "Returns column family pairs. A nil is present if a column
+family is missing in either expected or actual position."
   [tde tda]
-  (loop [[cfe & erest] (-> tde .getFamilies seq) ;;todo check seq may not be required
-         [cfa & arest] (-> tda .getFamilies seq)
-         acc []]
-    (if (and (nil? cfe) (nil? cfa))
-      acc
-      (let [ide (t/col-name cfe)
-            ida (t/col-name cfa)
-            cmp (compare ide ida)]
-        (cond
-         (zero? cmp) (recur erest arest (conj acc [cfe cfa]))
-         (neg? cmp) (recur erest (cons cfa arest) (conj acc [cfe nil]))
-         (pos? cmp) (recur (cons cfe erest) arest (conj acc [nil cfa])))))))
+  (vals (diff-map (-> tde .getFamilies column-map)
+                  (-> tda .getFamilies column-map))))
 
-(defn col-families
+(defn columns-diff
   [tde tda]
-  (map #(apply col-family %) (col-family-pairs tde tda)))
+  (map #(apply column-diff %)
+       (remove (fn [[exp act]] (= exp act))
+               (column-pairs tde tda))))
 
-(defn- table
+(defn- table-diff
   "Constructs an 'expected' table descriptor from cfg given
 and compares with the 'actual' table descriptor. Returns a
 map specifying the differences"
@@ -103,17 +91,17 @@ map specifying the differences"
       (let [actual (t/table-descriptor id)]
         (merge {:id id
                 :splits (splits cfg)
-                :column-families (col-families expected actual)}
-               (values (t/descriptor-values expected)
-                       (t/descriptor-values actual))))
+                :column-families (columns-diff expected actual)}
+               (diff-map (t/table-values expected)
+                         (t/table-values actual))))
       {:id id
-       :status "expected, but missing"})))
+       :status :expected})))
 
-(defn- tables
+(defn- tables-diff
   [cfg f]
-  (spit f (yaml/generate-string (map table cfg))))
+  (spit f (yaml/generate-string (map table-diff cfg))))
 
 (defn verify
   "Reads tables configuration from 'in' file, as yaml,
  and dumps any difference found in 'out' file, in yaml format"
-  [in out] (tables (u/read-cfg in) out) 'done)
+  [in out] (tables-diff (u/read-cfg in) out) 'done)
