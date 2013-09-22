@@ -3,7 +3,8 @@
             [clojure.string :as s]
             [hbase-util.vars :as v]
             [hbase-util.util :as u])
-  (:use [hbase-util.vars :only (conf admin)])
+  (:use [hbase-util.vars :only (conf admin)]
+        [clojure.tools.logging :only (info warn error)])
   (:import [java.io File]
            [hbase_util Util]
            [org.apache.hadoop.conf Configuration]
@@ -12,14 +13,6 @@
            [org.apache.hadoop.hbase.client HBaseAdmin HTable]))
 
 ;; processing splits
-
-(defn- strs->bytes
-  "Converts a collection of 'string' keys (splits) to
-a 2d byte array"
-  [split-keys]
-  (into-array (map #(Util/toBytesBinary %) split-keys)))
-
-;;(def hex-strs->bytes (partial strs->bytes #(Util/toBytesBinary %)))
 
 (defn- read-splits
   "Reads splits from file as strings"
@@ -55,8 +48,8 @@ a 2d byte array"
 
 (defn- column-descriptor
   "Creates a HColumnDescriptor from a 'cfg' map"
-  [{:keys [id] :as cfg}]
-  (let [hcd (HColumnDescriptor. (name id))]
+  [{:keys [column-name] :as cfg}]
+  (let [hcd (HColumnDescriptor. (name column-name))]
     (doseq [[k v] (dissoc cfg :id)]
       (.setValue hcd (-> k name s/upper-case) (str v)))
     hcd))
@@ -91,40 +84,47 @@ a 2d byte array"
 creates the corresponding tables"
   [f] (create-tables (u/read-cfg f)) 'done)
 
-(defn- create-cf-noadmin
-  [tid cd]
-  (let [tid (name tid)
-        td (.getTableDescriptor admin (.getBytes tid))
-        id (.getNameAsString cd)]
-    (when (.hasFamily td (.getBytes id))
-      (println "deleting column family" id "in table" tid)
-      (.deleteColumn admin tid id))
-    (println "creating column family" id "in table" tid)
-    (.addColumn admin tid cd)))
+;; ----
 
-(defn- create-cfs-noadmin
+(defn- truncate-column-family
+  [table-name column-descriptor]
+  (let [table-name (name table-name)
+        table-descriptor (.getTableDescriptor admin (u/to-bytes table-name))
+        id (.getNameAsString column-descriptor)]
+    (when (.hasFamily table-descriptor (u/to-bytes id))
+      ;(println "deleting column family" id "in table" table-name)
+      (.deleteColumn admin table-name id))
+    ;(println "creating column family" id "in table" table-name)
+    (.addColumn admin table-name column-descriptor)))
+
+(defn- truncate-column-families
   [{:keys [id] :as cfg}]
   (doseq [cf (column-descriptors cfg)]
     (create-cf-noadmin id cf)))
 
-(defn- create-table-noadmin
+(defn- truncate-table-limited-perms
   [{:keys [id] :as cfg}]
   (let [id (name id)]
     (if (.tableExists admin id)
-      (do
-        (when (.isTableEnabled admin id)
-          (println "disabling table " id)
+      (do (when (.isTableEnabled admin id)
+          (warn "disabling table " id)
           (.disableTable admin id))
-        (create-cfs-noadmin cfg)
-        (println "enabling table " id)
-        (.enableTable admin id))
-      (println "table" id "doesn't exist"))))
+          (create-cfs-noadmin cfg)
+          (warn "enabling table " id)
+          (.enableTable admin id))
+      (error "table" id "doesn't exist"))))
 
-(defn- create-tables-noadmin
+(defn- reset-tables
   [cfg]
   (doseq [tbl-cfg cfg]
     (create-table-noadmin tbl-cfg)))
 
-(defn create-noadmin
+(defn reset
+    "Like truncate, but doesn't delete/create
+the tables, but instead disables table, deletes
+and re-creates all column familes, and then
+enables tables again. This comes in handy
+if the logged-in user has limited permissions.
+TODO: mention about split info preservation"
   [f]
-  (create-tables-noadmin (u/read-cfg f)) 'done)
+  (reset-tables (u/read-cfg f)) 'done)

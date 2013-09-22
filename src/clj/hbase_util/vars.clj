@@ -6,8 +6,9 @@
            [org.apache.hadoop.hbase.client HBaseAdmin]))
 
 (def conf (HBaseConfiguration/create))
-(when (u/secure? conf)
-  (println "skipping kinit"))
-;(u/kinit (System/getenv "grid_user") (System/getenv "grid_keytab")))
+
+;; automatically login through JAAS client
+;(when (u/secure? conf)
+;  (u/kinit (System/getenv "grid_user") (System/getenv "grid_keytab")))
 
 (def admin (HBaseAdmin. conf))

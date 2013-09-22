@@ -16,6 +16,11 @@
   [conf]
   (= (.get conf "hbase.security.authentication" "simple") "kerberos"))
 
+(defn strs->bytes
+  "Converts a collection of 'string' keys (splits) to a 2d byte array"
+  [split-keys]
+  (into-array (map #(Util/toBytesBinary %) split-keys)))
+
 (defn to-bytes
   [v] (Bytes/toBytes v))
 
