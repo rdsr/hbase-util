@@ -2,7 +2,7 @@
   :description "Little things to make life easier working on Hbase"
   :source-paths ["src/clj"]
   :java-source-paths ["src/jvm"]
-  :repl-options {:prompt (fn [_] "=> ")
+  :repl-options {:prompt (fn [_] "> ")
                  :welcome (println "Hbase utility shell")
                  :init-ns hbase-util.core}
   :dependencies [[clj-yaml "0.4.0"]

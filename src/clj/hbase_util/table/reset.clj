@@ -12,7 +12,7 @@ family is created even if it didn't exist before"
         cid (col-name col-desc)]
     (when (has-family? tid cid)
       (delete-column tid cid))
-    (add-column tid cid)))
+    (add-column tid col-desc)))
 
 (defn- reset-columns
   [{:keys [id] :as cfg}] ;; id maps to table name
@@ -24,9 +24,9 @@ family is created even if it didn't exist before"
   (let [id (name id)]
     (if (exists? id)
       (do (when (enabled? id)
-            (disable id)
-            (reset-columns cfg)
-            (enable id)))
+            (disable id))
+          (reset-columns cfg)
+          (enable id))
       (error "table" id "doesn't exist"))))
 
 (defn- reset-tables
