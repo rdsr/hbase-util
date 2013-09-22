@@ -7,8 +7,10 @@
 
 (def conf (HBaseConfiguration/create))
 
-;; automatically login through JAAS client
-;(when (u/secure? conf)
-;  (u/kinit (System/getenv "grid_user") (System/getenv "grid_keytab")))
+;; Automatically login through JAAS client,
+;; If not enable this code.
+;; (when (u/secure? conf)
+;;   (u/kinit (System/getenv "grid_user")
+;;            (System/getenv "grid_keytab")))
 
 (def admin (HBaseAdmin. conf))
