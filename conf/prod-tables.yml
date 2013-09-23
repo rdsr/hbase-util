@@ -1,25 +1,25 @@
 - id: ca_prod_object_table
   column-families:
-  - {id: d, bloomfilter: ROW, versions: 10, compression: LZ0}
-  - {id: m, bloomfilter: ROW, versions: 10, compression: LZ0}
+  - {id: d, bloomfilter: ROW, versions: 10, compression: LZO}
+  - {id: m, bloomfilter: ROW, versions: 10, compression: LZO}
   splits:
     file: resources/prod_content_splits_1008.txt
 
 - id: ca_prod_chlog_table
   column-families:
-  - {id: m, ttl: 2592000, compression: LZ0}
+  - {id: m, ttl: 2592000, compression: LZO}
   splits:
     file: resources/changelog-splits-90.txt
 
 - id: ca_prod_message_table
   column-families:
-  - {id: d, ttl: 2592000, compression: LZ0}
-  - {id: m, ttl: 2592000, compression: LZ0}
-  - {id: s, ttl: 2592000, compression: LZ0}
+  - {id: d, ttl: 2592000, compression: LZO}
+  - {id: m, ttl: 2592000, compression: LZO}
+  - {id: s, ttl: 2592000, compression: LZO}
   splits:
     file: resources/message-splits-16.txt
 
 - id: ca_prod_config_table
   column-families:
-  - {id: m, compression: LZ0}
-  - {id: s, compression: LZ0}
+  - {id: m, compression: LZO}
+  - {id: s, compression: LZO}
