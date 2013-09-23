@@ -41,7 +41,7 @@ the tables, but instead, for each table..
   - Deletes and re-creates all column familes
   - Enables the table again
 This comes in handy if the logged-in user
-has limited permissions. It also preservers
+has limited permissions. It also preserves
 split information, unlike truncate.
 
 > (reset "conf/tables.yml")
