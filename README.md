@@ -36,10 +36,10 @@ creates the corresponding tables
 hbase-util.table.reset/reset
 ([f])
   Like (hbase shell's ) truncate, but doesn't delete/create
-the tables, but instead:
-  - Disable all tables,
-  - Deletes and re-creates all column familes,
-  - Enables tables again.
+the tables, but instead, for each table..
+  - Disables it
+  - Deletes and re-creates all column familes
+  - Enables the table again
 This comes in handy if the logged-in user
 has limited permissions. It also preservers
 split information, unlike truncate.
