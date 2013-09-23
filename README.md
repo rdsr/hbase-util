@@ -4,10 +4,10 @@
 
 ## Usage
 ### Working with local hbase cluster
-```lein repl```
+ - lein repl
 
 ### Working with a distributed hbase cluster
-```mvn clean package```
+ - mvn clean package
  - Copy target/hbase-util-*.zip to target machine
  - Unzip it on target machine
  - Run ./bin/hbase-util from within the extracted folder
@@ -15,7 +15,6 @@
 [bin/hbase-util](./bin/hbase-util) expects..
  - 'hbase' script to be on the classpath.
  -  HBASE_CONF_DIR and HADOOP_CONF_DIR env variables set.
-
 
 ## Current set of features
 ### Create hbase tables
@@ -36,8 +35,8 @@ creates the corresponding tables
 -------------------------
 hbase-util.table.reset/reset
 ([f])
-  Like truncate, but doesn't delete/create
-the tables, but instead:
+  Like (hbase shell's ) truncate, but doesn't delete/create
+the tables, but instead\:
   - Disable all tables,
   - Deletes and re-creates all column familes,
   - Enables tables again.
