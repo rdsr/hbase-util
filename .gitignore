@@ -8,3 +8,4 @@
 .lein-plugins
 .lein-repl-history
 .*
+logs

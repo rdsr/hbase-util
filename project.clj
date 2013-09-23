@@ -4,7 +4,7 @@
   :java-source-paths ["src/jvm"]
   :repl-options {:prompt (fn [_] "> ")
                  :welcome (println "Hbase utility shell")
-                 :init-ns hbase-util.core}
+                 :init (use '[hbase-util.table create reset verify])}
   :dependencies [[clj-yaml "0.4.0"]
                  [org.apache.hadoop/hadoop-common "0.23.8" :scope "provided"]
                  [org.apache.hbase/hbase "0.94.5.6.1302190003" :scope "provided"]
