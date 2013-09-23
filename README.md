@@ -36,7 +36,7 @@ creates the corresponding tables
 hbase-util.table.reset/reset
 ([f])
   Like (hbase shell's ) truncate, but doesn't delete/create
-the tables, but instead\:
+the tables, but instead:
   - Disable all tables,
   - Deletes and re-creates all column familes,
   - Enables tables again.
@@ -61,7 +61,7 @@ hbase-util.table.verify/verify
 
 ### Configuration
 
-Tables configuration is specified in yaml format [see is-tables.yml](./conf/is-tables.yml).
+Tables configuration is specified in yaml format [see dev-tables.yml](./conf/dev-tables.yml).
 This same yaml file serves both to 'create', 'reset' and 'verify' .
 
 Splits for a table can be specified (in the input yaml conf file) either as
