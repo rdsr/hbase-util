@@ -36,12 +36,12 @@ family is created even if it didn't exist before"
 
 (defn reset
     "Like truncate, but doesn't delete/create
-the tables, but instead
-  - disable all tables
-  - deletes and re-creates all column familes,
-  - enables tables again.
+the tables, but instead:
+  - Disable all tables,
+  - Deletes and re-creates all column familes,
+  - Enables tables again.
 This comes in handy if the logged-in user
-has limited permissions.
-TODO: mention about split info preservation"
+has limited permissions. It also preservers
+split information, unlike truncate."
   [f]
   (reset-tables (u/read-cfg f)) 'done)

@@ -3,4 +3,4 @@
 mkdir -p logs
 export HBASE_CLASSPATH=`hbase classpath`
 echo "Starting shell"
-${JAVA_HOME}/bin/java -Dlog4j.configuration=resources/log4j.properties -Djava.security.auth.login.config=conf/jaas-hbase-client.conf -Dfile.encoding=UTF-8 -cp "$HBASE_CONF_DIR:$HADOOP_CONF_DIR:lib/*:$HBASE_CLASSPATH" reply.ReplyMain --eval "(use 'hbase-util.core)"
+${JAVA_HOME}/bin/java -Dlog4j.configuration=resources/log4j.properties -Djava.security.auth.login.config=conf/jaas-hbase-client.conf -Dfile.encoding=UTF-8 -cp "$HBASE_CONF_DIR:$HADOOP_CONF_DIR:lib/*:$HBASE_CLASSPATH" reply.ReplyMain --eval "(use '[hbase-util.table create reset verify])"
