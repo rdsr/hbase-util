@@ -54,8 +54,8 @@ and actual splits"
 Returns a map specifying the differences"
   [cfe cfa]
   (cond
-   (nil? cfe) {:id (t/col-name cfa) :status :expected}
-   (nil? cfa) {:id (t/col-name cfe) :status :unexpected}
+   (nil? cfe) {:id (t/col-name cfa) :status :unexpected}
+   (nil? cfa) {:id (t/col-name cfe) :status :expected}
    :default (assoc (diff-map (t/column-values cfe)
                            (t/column-values cfa))
               :id (t/col-name cfa))))
