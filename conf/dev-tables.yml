@@ -5,7 +5,7 @@
 
 - id: ca_chlog_table
   column-families:
-  - {id: m, ttl: 2592000, compression: LZO}
+  - {id: m, ttl: 1296000, compression: LZO}
 
 - id: ca_message_table
   column-families:
