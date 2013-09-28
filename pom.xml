@@ -9,7 +9,7 @@
 <scm>
   <connection>scm:git:git://github.com/rdsr/hbase-util.git</connection>
   <developerConnection>scm:git:ssh://git@github.com/rdsr/hbase-util.git</developerConnection>
-  <tag>5c66c6b5d4db302446286d65e4ae34585a561396
+  <tag>e54282596ccb521adbffb17f779cfd5eec0f552b
   </tag>
   <url>https://github.com/rdsr/hbase-util</url>
 </scm>
@@ -18,10 +18,7 @@
   <testSourceDirectory>test</testSourceDirectory>
   <resources>
     <resource>
-      <directory>conf</directory>
-    </resource>
-    <resource>
-      <directory>src/clj</directory>
+      <directory>resources</directory>
     </resource>
   </resources>
   <testResources>
@@ -29,7 +26,7 @@
       <directory>dev-resources</directory>
     </testResource>
     <testResource>
-      <directory>conf</directory>
+      <directory>resources</directory>
     </testResource>
   </testResources>
   <directory>target</directory>
@@ -50,7 +47,6 @@
         </execution>
       </executions>
     </plugin>
-
     <plugin>
       <groupId>org.codehaus.mojo</groupId>
       <artifactId>build-helper-maven-plugin</artifactId>
@@ -96,14 +92,32 @@
 </repositories>
 <dependencies>
   <dependency>
-    <groupId>org.clojure</groupId>
-    <artifactId>clojure</artifactId>
-    <version>1.5.1</version>
-  </dependency>
-  <dependency>
     <groupId>clj-yaml</groupId>
     <artifactId>clj-yaml</artifactId>
     <version>0.4.0</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.hadoop</groupId>
+    <artifactId>hadoop-common</artifactId>
+    <version>0.23.8</version>
+    <scope>provided</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.hbase</groupId>
+    <artifactId>hbase</artifactId>
+    <version>0.94.9</version>
+    <scope>provided</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.zookeeper</groupId>
+    <artifactId>zookeeper</artifactId>
+    <version>3.4.5</version>
+    <scope>provided</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.clojure</groupId>
+    <artifactId>tools.logging</artifactId>
+    <version>0.2.6</version>
   </dependency>
   <dependency>
     <groupId>reply</groupId>
@@ -112,26 +126,8 @@
   </dependency>
   <dependency>
     <groupId>org.clojure</groupId>
-    <artifactId>tools.logging</artifactId>
-    <version>0.2.6</version>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.hbase</groupId>
-    <artifactId>hbase</artifactId>
-    <version>0.94.5.6.1302190003</version>
-    <scope>provided</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.hadoop</groupId>
-    <artifactId>hadoop-common</artifactId>
-    <version>0.23.6.2.1302191452</version>
-    <scope>provided</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.zookeeper</groupId>
-    <artifactId>zookeeper</artifactId>
-    <version>3.4.5</version>
-    <scope>provided</scope>
+    <artifactId>clojure</artifactId>
+    <version>1.5.1</version>
   </dependency>
   <dependency>
     <groupId>org.clojure</groupId>

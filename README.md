@@ -10,6 +10,7 @@
  - mvn clean package
  - Copy target/hbase-util-*.zip to target machine
  - Unzip it on target machine
+ - kinit (if the cluster is secure)
  - Run ./bin/hbase-util from within the extracted folder
 
 [bin/hbase-util](./bin/hbase-util) expects..

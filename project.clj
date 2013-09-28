@@ -7,7 +7,7 @@
                  :init (use '[hbase-util.table create reset verify])}
   :dependencies [[clj-yaml "0.4.0"]
                  [org.apache.hadoop/hadoop-common "0.23.8" :scope "provided"]
-                 [org.apache.hbase/hbase "0.94.5.6.1302190003" :scope "provided"]
+                 [org.apache.hbase/hbase "0.94.9" :scope "provided"]
                  [org.apache.zookeeper/zookeeper "3.4.5" :scope "provided"]
                  [org.clojure/tools.logging "0.2.6"]
                  [reply "0.2.1"]
