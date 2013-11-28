@@ -1,19 +1,19 @@
-- id: ca_object_table
+- id: cbase:ca_object_table
   column-families:
   - {id: d, bloomfilter: ROW, versions: 10, compression: LZO}
   - {id: m, bloomfilter: ROW, versions: 10, compression: LZO}
 
-- id: ca_chlog_table
+- id: cbase:ca_chlog_table
   column-families:
   - {id: m, ttl: 1296000, compression: LZO}
 
-- id: ca_message_table
+- id: cbase:ca_message_table
   column-families:
   - {id: d, ttl: 2592000, compression: LZO}
   - {id: m, ttl: 2592000, compression: LZO}
   - {id: s, ttl: 2592000, compression: LZO}
 
-- id: ca_config_table
+- id: cbase:ca_config_table
   column-families:
   - {id: m, compression: LZO}
   - {id: s, compression: LZO}
